@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เรซูเม่ | จิรเดช บุญยืน</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .dark-theme {
+      background-color: #333131;
+      color: #f0f0f0;
+    }
+
+    .light-theme {
+      background-color: #ffffff;
+      color: #333333;
+    }
+
+    .navbar {
+      background-color: #00bcd4;
+      padding: 12px;
+      text-align: center;
+      position: relative;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: bold;
+    }
+
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+
+    .toolbar {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .toolbar button {
+      padding: 6px 12px;
+      border: none;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .toolbar button:hover {
+      background: #555;
+    }
+
+    .card {
+      max-width: 800px;
+      margin: 30px auto;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 10px;
+    }
+
+    ul li {
+      padding: 8px 0;
+      font-size: 1.1em;
+      text-align: left;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    ul li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #00bcd4;
+      font-weight: bold;
+    }
+
+    .resume-button {
+      display: inline-block;
+      margin: 15px 0;
+      background-color: #00bcd4;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .resume-button:hover {
+      background-color: #019ca8;
+      transform: scale(1.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 15px;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+
+    th, td {
+      border: 1px solid #00bcd4;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #00bcd4;
+      color: white;
+      font-weight: bold;
+    }
+
+    td:nth-child(3) {
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+
+    tr:nth-child(even) td {
+      background-color: rgba(0, 188, 212, 0.05);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #888;
+    }
+
+    @media screen and (max-width: 600px) {
+      .card {
+        margin: 20px 10px;
+        padding: 20px;
+      }
+      .toolbar button {
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+      table, th, td {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-theme">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html">หน้าหลัก</a>
+  </nav>
+
+  <!-- Education Section -->
+  <section class="card fade-in">
+    <h2>ประวัติการศึกษา</h2>
+    <ul>
+      <li>มหาวิทยาลัยนเรศวร - สาขาวิชาภูมิศาสตร์ ปี 3</li>
+      <li>โรงเรียนมัธยมศึกษาเทสบาลเมืองสวรรคโลก แผนการเรียน วิทย์-คณิต</li>
+      <li>โรงเรียนบ้านหนองกลับ</li>
+    </ul>
+  </section>
+
+  <!-- Schedule Section -->
+  <section class="card fade-in">
+    <h2>ตารางเรียนในระดับอุดมศึกษา</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 15%;">ปีการศึกษา</th>
+          <th style="width: 10%;">เทอม</th>
+          <th style="width: 75%;">วิชาที่เรียน</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2566</td>
+          <td>1</td>
+          <td>
+            ภูมิศาสตร์มนุษย์
+            ภูมิศาสตร์กายภาพ
+            ภาษาอังกฤษเพื่อการสื่อสาร
+            แคลคูลัสมูลฐาน
+            การอ่านในยุคดิจิทัล
+            พลังงานและเทคโนโลยีใกล้ตัว
+          </td>
+        </tr>
+        <tr>
+          <td>2566</td>
+          <td>2</td>
+          <td>
+            โปรแกรมคอมพิวเตอร์เชิงพื้นที่
+            การทำแผนที่เบื้องต้น
+            ฟิสิกส์เบื้องต้น
+            ภาษาอังกฤษเพื่อการสื่อสารอย่างมีประสิทธิภาพ
+            พลวัติกลุ่ม
+            ศิลปะในชีวิตประจำวัน
+          </td>
+        </tr>
+        <tr>
+          <td>2567</td>
+          <td>1</td>
+          <td>
+            ระบบสารสนเทศภูมิศาสตร์
+            การรับรู้ระยะไกล
+            บรรยากาศวิทยาเบื้องต้น
+            ทักษะชีวิต
+            แอนโทรโปซีน
+          </td>
+        </tr>
+        <tr>
+          <td>2567</td>
+          <td>2</td>
+          <td>
+            การจัดการฐานข้อมูลและฐานข้อมูลเชิงพื้นที่
+            การสำรวจด้วยระบบนำทางดาวเทียม
+            วิทยาศาสตร์ข้อมูลภูมิศาสตร์
+            ทฤษฎีทำเลที่ตั้ง
+            ภาษาอังกฤษเพื่อการสื่อสารทางอาชีพ
+            วิทยาศาสตร์ในชีวิตประจำวัน
+          </td>
+        </tr>
+        <tr>
+          <td>2568</td>
+          <td>1</td>
+          <td>
+            โฟโตแกรมเมตรี1
+            การพัฒนาแผนที่บนเว็บ
+            การประยุกต์ทำแผนที่บนสมาร์ทโฟน
+            การประยุกต์และประมวลผลภาพจากอากาศยานไร้คนขับ
+            ภูมิศาสตร์เมือง
+            ปรัชญาและแนวความคิดทางภูมิศาสตร์
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Future Goals Section -->
+  <section class="card fade-in">
+    <h2>เป้าหมายในอนาคต</h2>
+    <p>
+      มุ่งหวังที่จะพัฒนาทักษะด้านระบบสารสนเทศภูมิศาสตร์ (GIS) และทำงานในหน่วยงานที่เกี่ยวข้องกับการวางแผนพื้นที่และสิ่งแวดล้อม เพื่อใช้ความรู้ทางภูมิศาสตร์สร้างประโยชน์ให้แก่สังคม
+    </p>
+  </section>
+
+  <!-- Download Resume -->
+  <section class="card fade-in" style="text-align:center;">
+    <a href="Resume.pdf.pdf" target="_blank" class="resume-button">
+      ดาวน์โหลด

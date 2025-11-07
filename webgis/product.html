@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>แหล่งจำหน่ายสินค้า</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    body{
+      font-family: "Noto Sans Thai", "Segoe UI", Arial, sans-serif;
+      padding:20px;
+      background:#f5f7fb;
+      color:#222;
+    }
+    .card{
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(20,30,60,0.08);
+      padding:18px;
+      max-width:1200px;
+      margin:0 auto;
+    }
+    h1{ margin:0 0 12px 0; font-size:20px; }
+    .controls{ display:flex; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+    .controls input[type="text"]{
+      padding:8px 10px; border-radius:8px; border:1px solid #d6dbe6; min-width:220px;
+    }
+    .controls button{
+      padding:8px 12px; border-radius:8px; border: none; background:#3b82f6; color:white; cursor:pointer;
+      box-shadow:0 2px 6px rgba(59,130,246,0.18);
+    }
+    .controls button.secondary{ background:#6b7280; box-shadow:none; }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:6px;
+      font-size:14px;
+    }
+    thead tr{
+      background: linear-gradient(90deg,#eef2ff,#f8fafc);
+      text-align:left;
+    }
+    th, td{
+      padding:10px 12px;
+      border-bottom:1px solid #eef1f6;
+      vertical-align:top;
+    }
+    th{
+      font-weight:600;
+      color:#374151;
+    }
+    tbody tr:hover{ background:#fbfdff; }
+
+    td.wrap{ white-space:normal; word-break:break-word; max-width:320px; }
+
+    .small{ font-size:12px; color:#6b7280; }
+    .tag{
+      display:inline-block; padding:4px 8px; border-radius:999px; background:#eef2ff; color:#1e40af; font-size:12px;
+    }
+
+    @media (max-width:880px){
+      th:nth-child(4), td:nth-child(4), th:nth-child(8), td:nth-child(8) { display:none; } 
+    }
+  </style>
+</head>
+<body>
+
+  <div style="margin: 20px;">
+    <button onclick="window.location.href='tourist.html'" 
+            style="background-color:#2563eb; color:white; border:none; padding:10px 20px; 
+                   border-radius:8px; font-size:16px; cursor:pointer;">
+      ย้อนกลับหน้าหลัก
+    </button>
+  </div>
+
+  <div class="card">
+    <h1>แหล่งจำหน่ายสินค้า</h1>
+
+    <div class="controls">
+      <input id="searchBox" type="text" placeholder="ค้นหา (ชื่อผลิตภัณฑ์ / เจ้าของ / ตำบล / จังหวัด ...)" />
+      <button id="reloadBtn">โหลดใหม่</button>
+      <button id="downloadJson" class="secondary">ดาวน์โหลด JSON</button>
+      <div style="margin-left:auto;" class="small">ไฟล์: <strong>data/แหล่งจำหน่ายสินค้า.csv</strong></div>
+    </div>
+
+    <div id="tableWrap">
+      <table id="dataTable">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div id="status" class="small" style="margin-top:8px;color:#374151;"></div>
+  </div>
+
+<script>
+  const csvUrl = './data/แหล่งจำหน่ายสินค้า.csv'; 
+
+  const tableHead = document.getElementById('tableHead');
+  const tableBody = document.getElementById('tableBody');
+  const statusEl = document.getElementById('status');
+  const searchBox = document.getElementById('searchBox');
+  const downloadBtn = document.getElementById('downloadJson');
+  const reloadBtn = document.getElementById('reloadBtn');
+
+  let rows = []; 
+
+  function loadCsv(){
+    statusEl.textContent = 'กำลังโหลดไฟล์ CSV ...';
+    Papa.parse(csvUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true,
+      complete: function(results) {
+        if(results && results.data){
+          rows = results.data.map(r => normalizeRow(r));
+          renderTable(rows);
+          statusEl.textContent = 'โหลดสำเร็จ: ' + rows.length + ' แถว';
+        } else {
+          statusEl.textContent = 'ไม่พบข้อมูลหรือไฟล์ผิดรูปแบบ';
+        }
+      },
+      error: function(err){
+        console.error(err);
+        statusEl.textContent = 'เกิดข้อผิดพลาดในการโหลดไฟล์: ' + err.message;
+        if(err.message && err.message.toLowerCase().includes('encoding')){
+          statusEl.textContent += ' — ตรวจสอบ encoding ของไฟล์: แนะนำบันทึกเป็น UTF-8';
+        }
+      }
+    });
+  }
+
+  function normalizeRow(r){
+    const mapKey = (k)=>{
+      if(!k) return '';
+      return k.trim().replace(/\s+/g,' ');
+    };
+    const out = {};
+    for(const k in r){
+      out[mapKey(k)] = r[k];
+    }
+    return out;
+  }
+
+  function renderTable(data){
+    tableHead.innerHTML = '';
+    tableBody.innerHTML = '';
+    if(!data || data.length===0) {
+      tableHead.innerHTML = '<tr><th>ไม่มีข้อมูล</th></tr>';
+      return;
+    }
+
+
+    const keys = Object.keys(data[0]);
+
+    const trHead = document.createElement('tr');
+    keys.forEach(k=>{
+      const th = document.createElement('th');
+      th.textContent = k;
+      trHead.appendChild(th);
+    });
+    tableHead.appendChild(trHead);
+
+    data.forEach((row, idx)=>{
+      const tr = document.createElement('tr');
+      keys.forEach(k=>{
+        const td = document.createElement('td');
+        let v = row[k];
+        if(v === null || v === undefined) v = '';
+        if(typeof v === 'string' && v.length > 80){
+          td.classList.add('wrap');
+        }
+        if(k.toLowerCase().includes('ป้าย')){
+          td.innerHTML = v ? '<span class="tag">'+escapeHtml(v)+'</span>' : '';
+        } else {
+          td.textContent = v;
+        }
+        tr.appendChild(td);
+      });
+      tableBody.appendChild(tr);
+    });
+  }
+
+  function applySearch(){
+    const q = searchBox.value.trim().toLowerCase();
+    if(!q){
+      renderTable(rows);
+      return;
+    }
+    const filtered = rows.filter(r=>{
+      return Object.values(r).some(val=>{
+        if(val === null || val === undefined) return false;
+        return String(val).toLowerCase().includes(q);
+      });
+    });
+    renderTable(filtered);
+    statusEl.textContent = 'แสดง ' + filtered.length + ' จาก ' + rows.length + ' แถว';
+  }
+
+  function downloadJSON(){
+    const dataStr = JSON.stringify(rows, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'แหล่งจำหน่ายสินค้า.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"'`]/g, function(m){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#96;'}[m];
+    });
+  }
+
+  searchBox.addEventListener('input', function(){ applySearch(); });
+  downloadBtn.addEventListener('click', downloadJSON);
+  reloadBtn.addEventListener('click', loadCsv);
+
+  loadCsv();
+</script>
+</body>
+</html>

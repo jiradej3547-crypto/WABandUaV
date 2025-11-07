@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>สมัครสมาชิก | TenJO</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+:root {
+  --accent: #0ff;       
+  --bg: #0f1724;        
+  --card: #141b2d; 
+  --text: #eef2f7;
+  --shadow: rgba(0,255,255,0.15);
+  --btn-hover: #00e5ff;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Sarabun',sans-serif;
+  background: linear-gradient(135deg,#0f1724,#071025);
+  height: 100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* Register Card */
+.register-container {
+  width:100%;
+  max-width:400px;
+  background: var(--card);
+  border-radius:20px;
+  padding:50px 35px;
+  text-align:center;
+  box-shadow: 0 15px 40px var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.register-container::before {
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity:0.05;
+  transform: rotate(45deg);
+  pointer-events: none; /* สำคัญ ป้องกันบังปุ่ม */
+}
+.register-container:hover { transform: translateY(-5px); box-shadow:0 25px 60px var(--shadow); }
+
+.register-container h2 {
+  font-size:28px;
+  color: var(--accent);
+  margin-bottom:30px;
+  text-shadow:0 0 8px rgba(0,255,255,0.3);
+}
+
+.icon-input {
+  position: relative;
+  margin-bottom: 20px;
+}
+.icon-input i {
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#b0bec5;
+}
+.icon-input input {
+  width:100%;
+  padding:12px 15px 12px 40px;
+  border:none;
+  border-radius:10px;
+  background: rgba(255,255,255,0.05);
+  color: #eef2f7;
+  font-size:15px;
+  transition:0.3s;
+}
+.icon-input input:focus {
+  outline:none;
+  background: rgba(255,255,255,0.1);
+  border:1px solid var(--accent);
+}
+
+/* Messages */
+.error, .success {
+  display:none;
+  font-size:14px;
+  margin-bottom:12px;
+  font-weight:500;
+}
+.error { color:#ff4b4b; }
+.success { color:#2ecc71; }
+
+/* Button */
+button {
+  width:100%;
+  padding:12px;
+  background: var(--accent);
+  color:#0f1724;
+  font-weight:600;
+  font-size:16px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  box-shadow:0 0 10px rgba(0,255,255,0.3);
+  transition:0.3s, transform 0.2s;
+}
+button:hover {
+  background: var(--btn-hover);
+  transform: translateY(-2px);
+  box-shadow:0 0 18px rgba(0,255,255,0.6);
+}
+
+/* Footer link */
+.register-container p {
+  margin-top:18px;
+  font-size:14px;
+  color:#b0bec5;
+}
+.register-container p a {
+  color: var(--accent);
+  font-weight:600;
+  text-decoration:none;
+}
+.register-container p a:hover {
+  color: var(--btn-hover);
+  text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<div class="register-container" data-aos="zoom-in">
+  <h2><i class="fas fa-user-plus"></i> สมัครสมาชิก</h2>
+  <div class="error" id="error-msg"></div>
+  <div class="success" id="success-msg"></div>
+  <form id="registerForm">
+    <div class="icon-input"><i class="fas fa-user"></i><input type="text" id="username" placeholder="ชื่อผู้ใช้" required></div>
+    <div class="icon-input"><i class="fas fa-lock"></i><input type="password" id="password" placeholder="รหัสผ่าน" required></div>
+    <div class="icon-input"><i class="fas fa-lock"></i><input type="password" id="confirm-password" placeholder="ยืนยันรหัสผ่าน" required></div>
+    <button type="submit">สมัครสมาชิก</button>
+  </form>
+  <p>มีบัญชีแล้ว? <a href="login.html">เข้าสู่ระบบ</a></p>
+</div>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+AOS.init({ duration: 800, once: true });
+
+const form=document.getElementById('registerForm');
+const error=document.getElementById('error-msg');
+const success=document.getElementById('success-msg');
+
+form.addEventListener('submit', e=>{
+  e.preventDefault();
+  const username=document.getElementById('username').value.trim();
+  const password=document.getElementById('password').value.trim();
+  const confirm=document.getElementById('confirm-password').value.trim();
+  error.style.display=success.style.display='none';
+
+  if(!username || !password || !confirm){
+    error.innerText="กรุณากรอกข้อมูลให้ครบทุกช่อง";
+    error.style.display='block';
+    return;
+  }
+  if(password.length<6){
+    error.innerText="รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+    error.style.display='block';
+    return;
+  }
+  if(password!==confirm){
+    error.innerText="รหัสผ่านไม่ตรงกัน";
+    error.style.display='block';
+    return;
+  }
+
+  const users=JSON.parse(localStorage.getItem('users'))||[];
+  if(users.find(u=>u.username===username)){
+    error.innerText="ชื่อผู้ใช้นี้มีอยู่แล้ว";
+    error.style.display='block';
+    return;
+  }
+
+  users.push({username,password});
+  localStorage.setItem('users',JSON.stringify(users));
+  success.innerText="สมัครสมาชิกสำเร็จ! กำลังพาไปหน้าล็อกอิน...";
+  success.style.display='block';
+  setTimeout(()=>window.location.href="login.html",1500);
+});
+</script>
+</body>
+</html>

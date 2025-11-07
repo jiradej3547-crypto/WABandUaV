@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>เที่ยวสุโขทัย | Web GIS</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <!-- Locate Control -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
+  <script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js"></script>
+
+  <!-- Mouse Position Plugin -->
+  <link rel="stylesheet" href="L.Control.MousePosition.css"/>
+  <script src="L.Control.MousePosition.js"></script>
+
+  <!-- AJAX & jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+  /* ======================= Root Variables ======================= */
+  :root{
+    --accent:#e6b330;
+    --bg:#0f1724;
+    --text:#fcefb4;
+    --transition: all 0.25s ease;
+    --border-radius:10px;
+  }
+
+  body{
+    font-family:'Sarabun',sans-serif;
+    margin:0;
+    background:linear-gradient(180deg,#0f1724 0%,#071025 100%);
+    color:#eef2f7;
+    overflow-x:hidden;
+    padding-top:60px;
+  }
+
+  /* ================= Header ================= */
+  .main-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 60px;
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    background:rgba(15,23,36,0.95);
+    backdrop-filter:blur(8px);
+    box-shadow:0 4px 18px rgba(0,0,0,0.45);
+    border-bottom:1px solid rgba(255,255,255,0.12);
+    z-index:1000;
+  }
+
+  .logo a{
+    font-size:26px;
+    font-weight:700;
+    color:var(--accent);
+    text-decoration:none;
+    letter-spacing:2px;
+  }
+
+  .main-nav ul{
+    list-style:none;
+    display:flex;
+    margin:0;
+  }
+
+  .main-nav li{
+    margin-left:28px;
+  }
+
+  .main-nav a{
+    text-decoration:none;
+    color:#e0d7b8;
+    transition:color .3s ease;
+    font-weight:500;
+  }
+
+  .main-nav a:hover{
+    color:var(--accent);
+  }
+
+  /* ================= Title / Intro ================= */
+  .page-title{
+    text-align:center;
+    font-size:38px;
+    font-weight:700;
+    color:var(--accent);
+    text-shadow:0 0 12px rgba(255,215,100,0.45);
+    margin-top:90px;
+  }
+
+  .page-intro{
+    text-align:center;
+    padding:10px 20px;
+    font-size:18px;
+    color:var(--text);
+  }
+
+  /* ================= Scroll Bar ================= */
+  .scroll-bar{
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    padding:15px 0;
+    background:rgba(15,23,36,0.9);
+    border-top:1px solid rgba(255,255,255,0.1);
+    border-bottom:1px solid rgba(255,255,255,0.1);
+    position:sticky;
+    top:60px;
+    z-index:999;
+  }
+
+  .scroll-bar a{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    color:#fcefb4;
+    text-decoration:none;
+    font-size:14px;
+    transition:color 0.3s;
+  }
+
+  .scroll-bar a i{
+    font-size:22px;
+    margin-bottom:5px;
+  }
+
+  .scroll-bar a:hover{
+    color:var(--accent);
+  }
+
+  /* ================= Map & Table ================= */
+  .map-container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:flex-start;
+    margin-top:20px;
+  }
+
+  #map{
+    /*height:650px;
+    width:780px;*/
+    height:90vh;     
+    width:90vw; 
+    margin:25px;
+    border-radius:var(--border-radius);
+    border:1.5px solid var(--accent);
+    box-shadow:0 6px 20px rgba(0,0,0,0.5);
+  }
+
+  #dataTableContainer{
+    flex:1;
+    margin:25px;
+    padding:20px;
+    background:rgba(255,255,255,0.05);
+    border-radius:var(--border-radius);
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:0 6px 20px rgba(0,0,0,0.35);
+    color:var(--text);
+    overflow-y:auto;
+    max-height:650px;
+    width:400px;
+  }
+
+  #dataTableContainer h3{
+    text-align:center;
+    font-size:20px;
+    font-weight:600;
+    color:var(--accent);
+    margin-bottom:10px;
+  }
+
+  /* Filter */
+  #tableFilter{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+
+  #tableFilter select, #tableFilter input {
+    padding:6px 10px;
+    border-radius:6px;
+    background-color: rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#fff;
+    font-weight:600;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  #tableFilter select:hover, #tableFilter input:hover,
+  #tableFilter select:focus, #tableFilter input:focus {
+    background-color: rgba(0,0,0,0.8);
+    outline:none;
+  }
+
+  #dataTable{
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  #dataTable th{
+    background: linear-gradient(90deg, #b8922e, #e6b330);
+    color:#0f1724;
+    text-align:center;
+    font-weight:700;
+    padding:10px;
+    border-bottom:2px solid rgba(255,255,255,0.2);
+  }
+
+  #dataTable td{
+    border-bottom:1px solid rgba(255,255,255,0.15);
+    padding:8px;
+    text-align:left;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  #dataTable tr:hover{
+    background:rgba(230,179,48,0.15);
+    cursor:pointer;
+  }
+
+  .pagination{
+    text-align:center;
+    margin-top:10px;
+    display:flex;
+    justify-content:center;
+    gap:5px;
+  }
+
+  .pagination button{
+    margin:2px;
+    padding:5px 10px;
+    background:rgba(255,255,255,0.1);
+    border:none;
+    color:#fff;
+    border-radius:4px;
+    cursor:pointer;
+    transition:all 0.2s;
+  }
+
+  .pagination button.active{
+    background:var(--accent);
+    color:#000;
+  }
+
+  /* ================= Recommendation ================= */
+  #recommend {
+    text-align: center;
+    margin: 40px auto;
+    max-width: 1400px;
+  }
+
+  #recommend h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: var(--accent);
+  }
+
+  #recommend .page-image-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+  }
+
+  .page-image {
+    width: 400px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1e293b;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .page-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  }
+
+  .page-image img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+  }
+
+  .page-image .caption {
+    padding: 12px;
+    font-size: 18px;
+    color: #fff;
+  }
+
+  footer{
+    text-align:center;
+    padding:20px;
+    color:#aaa;
+    border-top:1px solid rgba(255,255,255,0.1);
+    margin-top:40px;
+  }
+
+  /* ================= Leaflet Layer Control ================= */
+.leaflet-control-layers {
+  background: rgba(15, 23, 36, 0.95) !important;
+  color: var(--text);
+  border-radius: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+/* ให้ข้อความเรียงชิดซ้ายและระยะห่างสวย */
+.leaflet-control-layers label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+/* ช่องติ๊กกล่องให้เด่นขึ้น */
+.leaflet-control-layers input[type="radio"],
+.leaflet-control-layers input[type="checkbox"] {
+  accent-color: var(--accent);
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* หัวข้อ Base Layers / Overlays */
+.leaflet-control-layers-separator {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 8px 0;
+}
+
+/* ======================= Rainfall API Styling ======================= */
+
+/* popup กล่องข้อมูลน้ำฝน */
+.rainfall-popup-content {
+  font-family: 'Sarabun', sans-serif;
+  background: rgba(15, 23, 36, 0.95);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  border: 1px solid rgba(230, 179, 48, 0.3);
+  line-height: 1.6;
+}
+
+.rainfall-popup-content h3 {
+  font-size: 18px;
+  color: var(--accent);
+  margin-bottom: 8px;
+  text-align: center;
+  text-shadow: 0 0 6px rgba(230, 179, 48, 0.4);
+}
+
+.rainfall-popup-content p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+/* ======================= Rainfall Icon ======================= */
+.rainfall-icon {
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.rainfall-icon:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(230, 179, 48, 0.6);
+}
+
+/* ======================= Legend Styling ======================= */
+.info.legend {
+  background: rgba(15, 23, 36, 0.92);
+  color: var(--text);
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.4;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  max-width: 180px;
+}
+
+.info.legend h4 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: var(--accent);
+  text-shadow: 0 0 5px rgba(230, 179, 48, 0.5);
+}
+
+.info.legend i {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+  </style>
+</head>
+
+<body>
+  <header class="main-header">
+    <div class="logo"><a href="index.html">TenJO</a></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="my_first_map.html">ท่องเที่ยว</a></li>
+        <li><a href="studeut.html">ข้อมูลนักเรียน</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <h1 class="page-title">สถานที่ท่องเที่ยว</h1>
+  <div class="page-intro">
+    ข้อมูลเกี่ยวกับการท่องเที่ยวสุโขทัยคร่าว ๆ
+  </div>
+
+  <div class="scroll-bar">
+    <a href="#recommend"><i class="fa fa-star"></i> แนะนำ</a>
+    <a href="#map"><i class="fa fa-map"></i> แผนที่</a>
+    <a href="#dataTableContainer"><i class="fa fa-list"></i> ตารางข้อมูล</a>
+  </div>
+
+ <div id="recommend">
+    <h2>สถานที่ท่องเที่ยวแนะนำ</h2>
+    
+    <div class="page-image-container">
+      <div class="page-image">
+        <img src="img/เขาหลวง.jpg" alt="เขาหลวง">
+        <p class="caption">เขาหลวง อุทยานแห่งชาติรามคำแหง</p>
+      </div>
+
+      <div class="page-image">
+        <img src="img/ลอยกระทง.webp" alt="ลอยกระทง สุโขทัย">
+        <p class="caption">ประเพณีลอยกระทง จังหวัดสุโขทัย</p>
+      </div>
+
+      <div class="page-image">
+        <img src="img/น้ำตกสายรุ้ง.jpg" alt="น้ำตกสายรุ้ง">
+        <p class="caption">น้ำตกสายรุ้ง</p>
+      </div>
+
+      <div class="page-image">
+        <img src="img/วัดศรีชุม.jpeg" alt="วัดศรีชุม">
+        <p class="caption">ตำนาน พระพูดได้ วัดศรีชุม</p>
+      </div>
+
+      <div class="page-image">
+        <img src="img/สตรีทอาร์ตสวรรคโลก.jpg" alt="สตรีทอาร์ตสวรรคโลก">
+        <p class="caption">สตรีทอาร์ตสวรรคโลก</p>
+      </div>
+
+      <div class="page-image">
+        <img src="img/วัดพิพัฒน์มงคล.jpg" alt="วัดพิพัฒน์มงคล">
+        <p class="caption">วัดพิพัฒน์มงคล</p>
+      </div>
+  </div>
+
+
+  <div class="map-container">
+  <div id="map" style="height:570px;"></div>
+
+    <div id="dataTableContainer">
+      <h3>รายละเอียดสถานที่ท่องเที่ยว</h3>
+
+      <div id="tableFilter">
+        <select id="filterType">
+          <option value="all">เลือกประเภท</option>
+          <option value="ประวัติศาสตร์">ประวัติศาสตร์</option>
+          <option value="ธรรมชาติ">ธรรมชาติ</option>
+          <option value="ชุมชน">ชุมชน</option>
+        </select>
+        <select id="filterProvince">
+          <option value="all">เลือกจังหวัด</option>
+        </select>
+        <select id="filterAmphoe">
+          <option value="all">เลือกอำเภอ</option>
+        </select>
+        <select id="filterTambon">
+          <option value="all">เลือกตำบล</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่อสถานที่...">
+        <button id="resetFilters" type="button">ล้าง</button>
+      </div>
+
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>ชื่อ</th>
+            <th>ประเภท</th>
+            <th>ตำบล</th>
+            <th>อำเภอ</th>
+            <th>จังหวัด</th>
+            <th>เวลาเปิด</th>
+            <th>เวลาปิด</th>
+            <th>เบอร์โทร</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+
+ <script>
+  // ------------------ แผนที่และ Layer ------------------
+  var mymap = L.map('map').setView([17.050461, 99.792975], 17);
+  L.control.mousePosition().addTo(mymap);
+
+  var google_map = L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {maxZoom:18});
+  var openstreetmap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:18}).addTo(mymap);
+  var EsriWorldStreetMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {maxZoom:18});
+  var EsriWorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {maxZoom:18});
+
+  var STI_tambon = L.tileLayer.wms('http://localhost:8080/geoserver/agi/wms', { layers: 'agi:tambon_STI', format: 'image/png', transparent: true, opacity: 0.8 });
+  var STI_amphoe = L.tileLayer.wms('http://localhost:8080/geoserver/agi/wms', { layers: 'agi:Amphoe_STI', format: 'image/png', transparent: true, opacity: 0.8 });
+  var STI = L.tileLayer.wms('http://localhost:8080/geoserver/agi/wms', { layers: 'agi:STI', format: 'image/png', transparent: true, opacity: 0.8 });
+
+  var showpoint = L.geoJSON().addTo(mymap);
+  var showpoint1 = L.geoJSON().addTo(mymap);
+  var marker_arr = [];
+
+  var markers = [];
+  var allData = [], currentPage = 1, rowsPerPage = 10;
+
+  mymap.doubleClickZoom.disable();
+
+
+
+
+
+
+
+// ------------------ จุดของสถานที่ ------------------
+var places = {
+  "เขาหลวง": { 
+    lat: 16.869951937916873, 
+    lng: 99.66305340690289, 
+    popup: "<b>เขาหลวง อุทยานแห่งชาติรามคำแหง</b><br><img src='img/เขาหลวง.jpg' width='200' style='border-radius:10px;margin-top:5px;'>"
+  },
+  "ลอยกระทง สุโขทัย": { 
+    lat: 17.01951225668073, 
+    lng: 99.70478964069949, 
+    popup: "<b>ประเพณีลอยกระทง จังหวัดสุโขทัย</b><br><img src='img/ลอยกระทง.webp' width='200' style='border-radius:10px;margin-top:5px;'>"
+  },
+  "น้ำตกสายรุ้ง": { 
+    lat: 16.83510777974981, 
+    lng: 99.63978649950589, 
+    popup: "<b>น้ำตกสายรุ้ง</b><br><img src='img/น้ำตกสายรุ้ง.jpg' width='200' style='border-radius:10px;margin-top:5px;'>"
+  },
+  "วัดศรีชุม": { 
+    lat: 17.026829106046204, 
+    lng: 99.69316536026635, 
+    popup: "<b>วัดศรีชุม พระพูดได้</b><br><img src='img/วัดศรีชุม.jpeg' width='200' style='border-radius:10px;margin-top:5px;'>"
+  },
+  "สตรีทอาร์ตสวรรคโลก": { 
+    lat: 17.315697848398653, 
+    lng: 99.83170088896028, 
+    popup: "<b>สตรีทอาร์ตสวรรคโลก</b><br><img src='img/สตรีทอาร์ตสวรรคโลก.jpg' width='200' style='border-radius:10px;margin-top:5px;'>"
+  },
+  "วัดพิพัฒน์มงคล": { 
+    lat: 17.32247927373731, 
+    lng: 99.55133819636842, 
+    popup: "<b>วัดพิพัฒน์มงคล</b><br><img src='img/วัดพิพัฒน์มงคล.jpg' width='200' style='border-radius:10px;margin-top:5px;'>"
+  }
+};
+
+// ------------------ ฟังก์ชันเมื่อคลิกรูป ------------------
+document.querySelectorAll('.page-image img').forEach(img => {
+  img.addEventListener('click', () => {
+    const placeName = img.alt;
+    const place = places[placeName];
+    if (place) {
+      mymap.setView([place.lat, place.lng], 15, { animate: true });
+      L.marker([place.lat, place.lng]).addTo(mymap).bindPopup(place.popup).openPopup();
+    } else {
+      alert("ยังไม่มีพิกัดสำหรับ " + placeName);
+    }
+  });
+});
+
+
+
+
+
+
+
+  // ------------------ ฟังก์ชัน Filter ------------------
+  // ฟังก์ชันสร้างตัวเลือก (Dropdown) จากข้อมูลที่ส่งเข้ามา
+  function populateDropdown(selectId, data){
+    const select = document.getElementById(selectId);
+    let firstOptionText = "ทั้งหมด";
+    if(selectId==='filterProvince') firstOptionText='เลือกจังหวัด';
+    if(selectId==='filterAmphoe') firstOptionText='เลือกอำเภอ';
+    if(selectId==='filterTambon') firstOptionText='เลือกตำบล';
+    if(selectId==='filterType') firstOptionText='เลือกประเภท';
+    select.innerHTML = `<option value="all">${firstOptionText}</option>`;
+    data.filter(Boolean).sort().forEach(v=>{
+      const option = document.createElement("option");
+      option.value=v; option.innerText=v;
+      select.appendChild(option);
+    });
+  }
+
+  function filterData(){
+    const type = document.getElementById('filterType').value;
+    const province = document.getElementById('filterProvince').value;
+    const amphoe = document.getElementById('filterAmphoe').value;
+    const tambon = document.getElementById('filterTambon').value;
+    const search = document.getElementById('searchInput').value.toLowerCase();
+
+    return allData.filter(item=>{
+      const matchType = (type==='all' || item['ประเภท']===type);
+      const matchProvince = (province==='all' || item['จังหวัด']===province);
+      const matchAmphoe = (amphoe==='all' || item['อำเภอ']===amphoe);
+      const matchTambon = (tambon==='all' || item['ตำบล']===tambon);
+      const matchSearch = Object.keys(item).some(key => item[key] && item[key].toString().toLowerCase().includes(search));
+      return matchType && matchProvince && matchAmphoe && matchTambon && matchSearch;
+    });
+  }
+
+  function renderMarkers(){
+    // ลบ marker เก่า
+    markers.forEach(m=>m.marker.remove());
+    markers=[];
+    // เพิ่ม marker ใหม่
+    filterData().forEach(item=>{
+      if(item["ละติจูด"] && item["ลองติจูด"]){
+        const marker = L.marker([item["ละติจูด"], item["ลองติจูด"]])
+                        .addTo(mymap)
+                        .bindPopup(`<b>${item["ชื่อ"]}</b><br>${item["ประเภท"]}<br>${item["ตำบล"]}, ${item["อำเภอ"]}, ${item["จังหวัด"]}
+                                    <br><button onclick='editData("${item["ชื่อ"]}")'>แก้ไข</button>
+                                    <button onclick='deleteData("${item["ชื่อ"]}")' style="margin-left:5px;color:red;">ลบ</button>`);
+        markers.push({name:item["ชื่อ"], marker:marker});
+      }
+    });
+  }
+
+  function zoomToMarker(name){
+    const found = markers.find(m=>m.name===name);
+    if(found){
+      mymap.setView(found.marker.getLatLng(), 16);
+      found.marker.openPopup();
+    } else {
+      console.log("ไม่พบ Marker:", name);
+    }
+  }
+
+  function renderTable(){
+    const tableBody = document.querySelector("#dataTable tbody");
+    const pagination = document.getElementById("pagination");
+    const filteredData = filterData();
+    const start = (currentPage-1)*rowsPerPage;
+    const end = start+rowsPerPage;
+    const pageData = filteredData.slice(start,end);
+
+    tableBody.innerHTML="";
+    pageData.forEach(item=>{
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${item["ชื่อ"]}</td>
+                       <td>${item["ประเภท"]||'-'}</td>
+                       <td>${item["ตำบล"]||'-'}</td>
+                       <td>${item["อำเภอ"]||'-'}</td>
+                       <td>${item["จังหวัด"]||'-'}</td>
+                       <td>${item["เวลาเปิด"]||'-'}</td>
+                       <td>${item["เวลาปิด"]||'-'}</td>
+                       <td>${item["เบอร์โทร"]||'-'}</td>`;
+      
+      row.addEventListener("click", ()=>{
+        zoomToMarker(item["ชื่อ"]);
+        // เลื่อนหน้าไป map
+        const mapEl = document.getElementById("map");
+        const offset = document.querySelector('.main-header')?.offsetHeight || 0;
+        const top = mapEl.getBoundingClientRect().top + window.pageYOffset - offset - 100;
+        window.scrollTo({top: top, behavior:'smooth'});
+      });
+
+      tableBody.appendChild(row);
+    });
+
+    // pagination
+    pagination.innerHTML="";
+    const totalPages = Math.ceil(filteredData.length/rowsPerPage);
+    for(let i=1;i<=totalPages;i++){
+      const btn = document.createElement("button");
+      btn.innerText=i;
+      if(i===currentPage) btn.classList.add("active");
+      btn.addEventListener("click",()=>{currentPage=i; renderTable();});
+      pagination.appendChild(btn);
+    }
+  }
+
+  function setupDependentDropdowns(){
+    const provinces=[...new Set(allData.map(i=>i["จังหวัด"]))].filter(p=>p && p!=='-');
+    populateDropdown('filterProvince', provinces);
+
+    document.getElementById('filterType').addEventListener('change', ()=>{currentPage=1; renderTable(); renderMarkers();});
+    document.getElementById('filterProvince').addEventListener('change', function(){
+      const selectedProvince=this.value;
+      if(selectedProvince!=="all"){
+        const amphoes=[...new Set(allData.filter(i=>i["จังหวัด"]===selectedProvince).map(i=>i["อำเภอ"]))].filter(a=>a&&a!=='-');
+        populateDropdown('filterAmphoe', amphoes);
+      } else populateDropdown('filterAmphoe', []);
+      populateDropdown('filterTambon', []);
+      currentPage=1; renderTable(); renderMarkers();
+    });
+    document.getElementById('filterAmphoe').addEventListener('change', function(){
+      const selectedAmphoe=this.value;
+      const selectedProvince=document.getElementById('filterProvince').value;
+      if(selectedAmphoe!=="all"){
+        const tambons=[...new Set(allData.filter(i=>i["จังหวัด"]===selectedProvince && i["อำเภอ"]===selectedAmphoe).map(i=>i["ตำบล"]))].filter(t=>t&&t!=='-');
+        populateDropdown('filterTambon', tambons);
+      } else populateDropdown('filterTambon', []);
+      currentPage=1; renderTable(); renderMarkers();
+    });
+    document.getElementById('filterTambon').addEventListener('change', ()=>{currentPage=1; renderTable(); renderMarkers();});
+  }
+
+
+
+
+
+
+  
+  // ------------------ โหลดข้อมูล ------------------
+  fetch('get_tourist_spots.php')
+    .then(res=>res.json())
+    .then(data=>{
+      allData = data;
+      renderTable();
+      renderMarkers();
+      setupDependentDropdowns();
+    });
+
+  document.getElementById('searchInput').addEventListener('input', ()=>{
+    currentPage=1; renderTable(); renderMarkers();
+  });
+
+    // คลิกแผนที่เพื่อค้นหาระยะทาง
+        mymap.on("click", function(e) {
+          marker_arr.forEach(m => mymap.removeLayer(m));
+          marker_arr = [];
+
+          var ct = "<center><h3>Search By Distance</h3></center>";
+          ct += "Lat: <input type='text' id='lat' value='" + e.latlng.lat + "'><br>";
+          ct += "Lng: <input type='text' id='lng' value='" + e.latlng.lng + "'><br>";
+          ct += "Distance: <input type='text' id='distance' ><br><br>";
+          ct += "<center><button onclick='sendtodb();'>Submit</button></center>";
+
+          var marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mymap).bindPopup(ct).openPopup();
+          marker_arr.push(marker);
+        });
+
+        function sendtodb() {
+          if(showpoint) showpoint.clearLayers();
+          var lat = parseFloat(document.getElementById("lat").value);
+          var lng = parseFloat(document.getElementById("lng").value);
+          var distance = parseFloat(document.getElementById("distance").value);
+
+          $.ajax({
+            url: "query.php",
+            type: "GET",
+            dataType: "json",
+            data: { lat, lng, distance },
+            success: function(data){
+              showpoint = L.geoJSON(data, {
+                pointToLayer: function(feature, latlng){
+                  return L.circleMarker(latlng, {radius: 8, color:"#ff0000", fillColor:"#ff0000", fillOpacity:0.8});
+                },
+                onEachFeature: function(feature, layer){
+                  layer.bindPopup("<b>ชื่อ:</b> " + feature.properties.lm_name +"<br><b>GID:</b> " + feature.properties.gid);
+                }
+              }).addTo(mymap);
+              if(showpoint.getBounds().isValid()) mymap.fitBounds(showpoint.getBounds());
+            },
+            error: function(err){console.error(err); alert("Ajax error occurred");}
+          });
+        }
+
+
+
+
+        // ดับเบิ้ลคลิกเพิ่มข้อมูลใหม่
+        mymap.on("dblclick", function(e){
+          marker_arr.forEach(m => mymap.removeLayer(m));
+          marker_arr = [];
+
+          var ct = "<center><h3>เพิ่มข้อมูลสถานที่</h3></center>";
+          ct += "ละติจูด: <input type='number' id='lat' value='" + e.latlng.lat + "' step='any'><br>";
+          ct += "ลองจิจูด: <input type='number' id='lng' value='" + e.latlng.lng + "' step='any'><br>";
+          ct += "ชื่อ: <input type='text' id='name'><br>";
+          ct += "ประเภท: <input type='text' id='type'><br>";
+          ct += "ตำบล: <input type='text' id='tambon'><br>";
+          ct += "อำเภอ: <input type='text' id='amphoe'><br>";
+          ct += "จังหวัด: <input type='text' id='province' value='สุโขทัย'><br>";
+          ct += "เวลาเปิด: <input type='text' id='open'><br>";
+          ct += "เวลาปิด: <input type='text' id='close'><br>";
+          ct += "เบอร์โทร: <input type='text' id='phone'><br><br>";
+          ct += "<center><button onclick='inserttodb();'>บันทึก</button></center>";
+
+          var marker1 = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mymap).bindPopup(ct).openPopup();
+          marker_arr.push(marker1);
+        });
+
+        mymap.on("contextmenu", function(e){
+          marker_arr.forEach(m => mymap.removeLayer(m));
+          marker_arr = [];
+        });
+
+        function inserttodb(){
+          var lat = parseFloat(document.getElementById("lat").value);
+          var lng = parseFloat(document.getElementById("lng").value);
+          var name = document.getElementById("name").value;
+          var type = document.getElementById("type").value || "-";
+          var tambon = document.getElementById("tambon").value || "-";
+          var amphoe = document.getElementById("amphoe").value || "-";
+          var province = document.getElementById("province").value || "-";
+          var open = document.getElementById("open").value || "-";
+          var close = document.getElementById("close").value || "-";
+          var phone = document.getElementById("phone").value || "-";
+
+          $.ajax({
+            url: "insert.php",
+            type: "GET",
+            dataType: "json",
+            data: { lat, lng, name, type, tambon, amphoe, province, open, close, phone },
+            success: function(data){
+              // แสดง marker ใหม่บนแผนที่
+              showpoint1 = L.geoJSON(data).addTo(mymap);
+
+              // เพิ่มข้อมูลใหม่เข้า allData
+              allData.push({ "ชื่อ":name,"ประเภท":type,"ตำบล":tambon,"อำเภอ":amphoe,"จังหวัด":province,"เวลาเปิด":open,"เวลาปิด":close,"เบอร์โทร":phone,"ละติจูด":lat,"ลองติจูด":lng });
+
+              renderMarkers();
+              renderTable();
+            },
+            error:function(err){console.error(err); alert("Ajax error occurred");}
+          });
+        }
+
+
+
+
+    function editData(name){
+      // หา object ที่จะ edit
+      const item = allData.find(d => d["ชื่อ"] === name);
+      if(!item) return;
+
+      // สร้างฟอร์ม popup เหมือนเพิ่ม แต่เติมค่าปัจจุบัน
+      const ct = `<center><h3>แก้ไขข้อมูลสถานที่</h3></center>
+                  ละติจูด: <input type='number' id='lat' value='${item["ละติจูด"]}' step='any'><br>
+                  ลองจิจูด: <input type='number' id='lng' value='${item["ลองติจูด"]}' step='any'><br>
+                  ชื่อ: <input type='text' id='name' value='${item["ชื่อ"]}'><br>
+                  ประเภท: <input type='text' id='type' value='${item["ประเภท"]}'><br>
+                  ตำบล: <input type='text' id='tambon' value='${item["ตำบล"]}'><br>
+                  อำเภอ: <input type='text' id='amphoe' value='${item["อำเภอ"]}'><br>
+                  จังหวัด: <input type='text' id='province' value='${item["จังหวัด"]}'><br>
+                  เวลาเปิด: <input type='text' id='open' value='${item["เวลาเปิด"]}'><br>
+                  เวลาปิด: <input type='text' id='close' value='${item["เวลาปิด"]}'><br>
+                  เบอร์โทร: <input type='text' id='phone' value='${item["เบอร์โทร"]}'><br><br>
+                  <center><button onclick='updateData("${name}")'>บันทึกการแก้ไข</button></center>`;
+
+
+
+      // เปิด popup ที่ marker ของจุดนั้น
+      const m = markers.find(mk => mk.name === name);
+      if(m) m.marker.bindPopup(ct).openPopup();
+    }
+
+    function updateData(oldName){
+      const lat = parseFloat(document.getElementById("lat").value);
+      const lng = parseFloat(document.getElementById("lng").value);
+      const name = document.getElementById("name").value;
+      const type = document.getElementById("type").value || "-";
+      const tambon = document.getElementById("tambon").value || "-";
+      const amphoe = document.getElementById("amphoe").value || "-";
+      const province = document.getElementById("province").value || "-";
+      const open = document.getElementById("open").value || "-";
+      const close = document.getElementById("close").value || "-";
+      const phone = document.getElementById("phone").value || "-";
+
+      $.ajax({
+        url: "update.php",
+        type: "GET",
+        dataType: "json",
+        data: { oldName, lat, lng, name, type, tambon, amphoe, province, open, close, phone },
+        success: function(data){
+          allData = data; // สมมุติว่า update.php ส่งข้อมูลทั้งหมดกลับ
+          renderMarkers();
+          renderTable();
+          alert("แก้ไขข้อมูลเรียบร้อย");
+        },
+        error: function(err){
+          console.error(err);
+          alert("เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
+        }
+      });
+    }
+
+
+
+
+    
+
+    function deleteData(name){
+      if(!confirm(`คุณแน่ใจหรือไม่ที่จะลบ "${name}" ?`)) return;
+
+      $.ajax({
+        url: "delete.php",
+        type: "GET",
+        dataType: "json",
+        data: { name: name },
+        success: function(data){
+          // อัปเดต allData หลังลบ
+          allData = allData.filter(item => item["ชื่อ"] !== name);
+          renderMarkers();
+          renderTable();
+          alert(`ลบ "${name}" เรียบร้อย`);
+        },
+        error: function(err){
+          console.error(err);
+          alert("เกิดข้อผิดพลาดในการลบข้อมูล");
+        }
+      });
+    }
+
+ // =================== Rainfall (ปริมาณน้ำฝน) ===================
+        // เลือกสีตามปริมาณน้ำฝน
+        function getRainfallColor(rainfall) {
+            return rainfall >= 90 ? '#08306b' :
+                rainfall >= 35 ? '#2171b5' :
+                rainfall >= 10 ? '#6baed6' :
+                rainfall >= 0.1 ? '#c6dbef' :
+                                    '#f7fbff';
+        }
+
+        // สร้าง popup สำหรับน้ำฝน
+        function createRainfallPopup(data) {
+            let rainfall = data.rain_24h ? data.rain_24h.toFixed(1) : 'ไม่มีข้อมูล';
+            let stationName = data.station.tele_station_name.th || 'ไม่ระบุ';
+            let provinceName = data.geocode.province_name.th || 'ไม่ระบุ';
+            let amphoeName = data.geocode.amphoe_name.th || 'ไม่ระบุ';
+            let tumbonName = data.geocode.tumbon_name.th || 'ไม่ระบุ';
+            let dateTime = data.rainfall_datetime || 'ไม่ระบุ';
+            let agency = data.agency.agency_name.th || 'ไม่ระบุ';
+            let basinName = data.basin.basin_name.th || 'ไม่ระบุ';
+            return `
+                <div class="rainfall-popup-content">
+                    <h3>${stationName}</h3>
+                    <p><strong>ปริมาณน้ำฝน 24 ชม.:</strong> 
+                    <span style="color: ${getRainfallColor(rainfall)}; font-weight:bold;">
+                        ${rainfall} มม.
+                    </span></p>
+                    <p><strong>วันที่/เวลา:</strong> ${dateTime}</p>
+                    <p><strong>ประเภทสถานี:</strong> ${data.station_type || 'ไม่ระบุ'}</p>
+                    <p><strong>ที่ตั้ง:</strong> ต.${tumbonName}, อ.${amphoeName}, จ.${provinceName}</p>
+                    <p><strong>ลุ่มน้ำ:</strong> ${basinName}</p>
+                    <p><strong>หน่วยงาน:</strong> ${agency}</p>
+                </div>
+            `;
+        }
+
+        // สร้างไอคอน marker สำหรับน้ำฝน
+        function createRainfallIcon(rainfall) {
+            let color = getRainfallColor(rainfall);
+            let size = 20 + (rainfall || 0) * 0.5;
+            return L.divIcon({
+                className: 'custom-icon',
+                html: `<div class="rainfall-icon" 
+                            style="background-color:${color};
+                                    width:${size}px;
+                                    height:${size}px;
+                                    line-height:${size}px;
+                                    font-size:${size/3}px;">
+                        ${rainfall ? rainfall.toFixed(1) : '-'}
+                    </div>`,
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2],
+                popupAnchor: [0, -size/2]
+            });
+        }
+
+        // Layer group สำหรับน้ำฝน + ดึง API
+       var rainfallLayer = L.featureGroup(); // สร้าง layer ว่าง
+      fetch('https://api-v3.thaiwater.net/api/v1/thaiwater30/public/rain_24h')
+        .then(res => res.json())
+        .then(data => {
+            if(data.result==='OK' && data.data){
+                data.data.forEach(item => {
+                    const lat = item.station.tele_station_lat;
+                    const lon = item.station.tele_station_long;
+                    const rainfall = item.rain_24h;
+                    const provinceName = item.geocode.province_name.th;
+
+                    // --- เฉพาะสุโขทัย ---
+                    if(lat && lon && provinceName === 'สุโขทัย'){
+                        let marker = L.marker([lat, lon], {icon:createRainfallIcon(rainfall)})
+                                      .bindPopup(createRainfallPopup(item));
+                        rainfallLayer.addLayer(marker);
+                    }
+                });
+                // เพิ่ม layer ลง map ทันที
+                mymap.addLayer(rainfallLayer);
+            }
+        });
+
+
+        // Legend สำหรับ Rainfall
+        var rainfallLegend = L.control({position:'bottomright'});
+        rainfallLegend.onAdd = function(map){
+            var div = L.DomUtil.create('div','info legend');
+            div.innerHTML = '<h4>ปริมาณน้ำฝน 24 ชม.</h4>';
+            var grades = [0.1, 10, 35, 90];
+            var labels = ['0.1 - 9.9 มม.','10 - 34.9 มม.','35 - 89.9 มม.','>= 90 มม.'];
+            for(var i=0;i<grades.length;i++){
+                div.innerHTML += '<i style="background:'+getRainfallColor(grades[i])+'"></i> '+labels[i]+'<br>';
+            }
+            return div;
+        };
+
+    
+ // ฟังก์ชัน style สำหรับสุโขทัย
+function style(feature) {
+    return {
+        color: "#e6b330",
+        weight: 2,
+        fillOpacity: feature.properties.prov_nam_t === "จ.สุโขทัย" ? 0.5 : 0,
+        fillColor: feature.properties.prov_nam_t === "จ.สุโขทัย" ? "#a0eaff" : "#00ffffff"
+    };
+}
+
+// ฟังก์ชัน onEachFeature (สำหรับ popup)
+function onEachFeature(feature, layer) {
+    if(feature.properties.prov_nam_t === "จ.สุโขทัย"){
+        layer.bindPopup(`<b>${feature.properties.prov_nam_t}</b>`);
+    }
+}
+
+// โหลด GeoJSON และแสดงเฉพาะสุโขทัย
+var ThaiProvJSON = new L.GeoJSON.AJAX("Data/thai_province.geojson", {
+    filter: feature => feature.properties.prov_nam_t === "จ.สุโขทัย",
+    style: style,
+    onEachFeature: onEachFeature
+}).addTo(mymap);
+
+// Overlay control
+var baseLayers = {
+    "Google Map": google_map,
+    "OpenStreetMap": openstreetmap,
+    "Esri World StreetMap": EsriWorldStreetMap,
+    "Esri World Imagery": EsriWorldImagery
+};
+
+var overlays = {
+    "สุโขทัย": ThaiProvJSON,
+    "ขอบเขตจังหวัด": STI,
+    "ขอบเขตอำเภอ": STI_amphoe,
+    "ขอบเขตตำบล": STI_tambon,
+    "ปริมาณน้ำฝน 24 ชั่วโมง": rainfallLayer
+};
+
+L.control.layers(baseLayers, overlays).addTo(mymap);
+
+L.control.locate({position:'topleft', strings:{title:"หาตำแหน่งของฉัน"}}).addTo(mymap);
+
+
+    // Smooth scroll
+    document.querySelectorAll('.scroll-bar a').forEach(link=>{
+      link.addEventListener('click', function(e){
+        e.preventDefault();
+        const targetId=this.getAttribute('href');
+        const target=document.querySelector(targetId);
+        if(target){
+          const offset=document.querySelector('.main-header').offsetHeight + document.querySelector('.scroll-bar').offsetHeight + 10;
+          const elementPosition=target.getBoundingClientRect().top + window.pageYOffset;
+          window.scrollTo({top:elementPosition-offset, behavior:'smooth'});
+        }
+      });
+    });
+
+    document.getElementById('resetFilters').addEventListener('click', ()=>{
+      // ล้างทุก dropdown
+      document.getElementById('filterType').value = 'all';
+      document.getElementById('filterProvince').value = 'all';
+      document.getElementById('filterAmphoe').value = 'all';
+      document.getElementById('filterTambon').value = 'all';
+      // ล้าง search input
+      document.getElementById('searchInput').value = '';
+      
+      // รีเฟรชตารางและ marker
+      currentPage = 1;
+      renderTable();
+      renderMarkers();
+    });
+
+  </script>
+</body>
+</html>

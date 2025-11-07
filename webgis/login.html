@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ | CBT Thailand</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+:root {
+  --accent: #0ff;
+  --bg: #0f1724;
+  --card: #141b2d;
+  --text: #eef2f7;
+  --shadow: rgba(0,255,255,0.15);
+  --btn-hover: #00e5ff;
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: linear-gradient(135deg, #0f1724 0%, #071025 100%);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* Login Card */
+.login-container {
+  background: var(--card);
+  padding: 50px 35px;
+  border-radius: 20px;
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 15px 40px var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.login-container::before {
+  content:'';
+  position:absolute;
+  top:-50%;
+  left:-50%;
+  width:200%;
+  height:200%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity:0.05;
+  transform:rotate(45deg);
+  pointer-events: none; /* สำคัญ! ทำให้ปุ่มกดได้ */
+}
+.login-container:hover { transform: translateY(-5px); box-shadow: 0 25px 60px var(--shadow); }
+
+.login-container h2 {
+  font-size: 28px;
+  color: var(--accent);
+  margin-bottom: 30px;
+  text-shadow: 0 0 8px rgba(0,255,255,0.3);
+}
+
+.icon-input {
+  position: relative;
+  margin-bottom: 20px;
+}
+.icon-input i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #b0bec5;
+}
+.icon-input input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  color: #eef2f7;
+  font-size: 15px;
+  transition: 0.3s;
+}
+.icon-input input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--accent);
+}
+
+/* Error Message */
+.error {
+  display: none;
+  color: #ff4b4b;
+  margin-bottom: 12px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Button */
+button {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: #0f1724;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,255,255,0.3);
+  transition: 0.3s, transform 0.2s;
+}
+button:hover {
+  background: var(--btn-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(0,255,255,0.6);
+}
+
+/* Footer link */
+.login-container p {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #b0bec5;
+}
+.login-container p a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.login-container p a:hover {
+  color: var(--btn-hover);
+  text-decoration: underline;
+}
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</h2>
+    <div class="error" id="error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+    <form id="loginForm">
+      <div class="icon-input"><i class="fas fa-user"></i><input type="text" id="username" placeholder="ชื่อผู้ใช้" required></div>
+      <div class="icon-input"><i class="fas fa-lock"></i><input type="password" id="password" placeholder="รหัสผ่าน" required></div>
+      <button type="submit">เข้าสู่ระบบ</button>
+    </form>
+    <p>ยังไม่มีบัญชี? <a href="register.html">สมัครสมาชิก</a></p>
+  </div>
+
+  <script>
+    const form=document.getElementById('loginForm');
+    const error=document.getElementById('error');
+    form.addEventListener('submit', e=>{
+      e.preventDefault();
+      const username=document.getElementById('username').value.trim();
+      const password=document.getElementById('password').value.trim();
+      const users=JSON.parse(localStorage.getItem('users'))||[];
+      const user=users.find(u=>u.username===username && u.password===password);
+      if(user){
+        localStorage.setItem('loggedIn','true');
+        localStorage.setItem('username',username);
+        window.location.href='index.html';
+      } else {
+        error.style.display='block';
+      }
+    });
+  </script>
+</body>
+</html>

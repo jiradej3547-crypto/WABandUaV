@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TenJO | หน้าเว็บตัวอย่างสวยงาม</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+:root {
+  --accent: #0ff; 
+  --bg: #0f1724;
+  --card: #141b2d;
+  --text: #eef2f7;
+  --shadow: rgba(0,255,255,0.15);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+/* Header */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 10%;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: rgba(15,23,36,0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.logo a {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 2px;
+}
+
+.main-nav ul { list-style: none; display: flex; gap: 32px; }
+.main-nav a {
+  text-decoration: none;
+  color: #cfd8dc;
+  font-weight: 500;
+  transition: 0.3s;
+}
+.main-nav a:hover { color: var(--accent); }
+
+.menu-icon { display: none; cursor: pointer; color: var(--accent); }
+
+/* Hero Banner */
+.hero-banner {
+  height: 85vh;
+  background: linear-gradient(135deg, #0f1724 0%, #071025 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero-banner h1 {
+  font-size: clamp(36px, 5vw, 64px);
+  color: var(--accent);
+  text-shadow: 0 0 15px rgba(0,255,255,0.3);
+  margin-bottom: 10px;
+}
+
+.hero-banner p {
+  font-size: clamp(16px, 2vw, 22px);
+  color: #b0bec5;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #0f1724;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.btn-primary:hover { background: #00e5ff; transform: translateY(-2px); }
+
+/* Profile Card */
+.profile-header {
+  text-align: center;
+  font-size: 32px;
+  color: var(--accent);
+  margin-top: 100px;
+  text-shadow: 0 0 8px rgba(0,255,255,0.3);
+}
+
+.hero-card.profile-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 40px 30px;
+  margin: 40px auto;
+  text-align: center;
+  box-shadow: 0 12px 40px var(--shadow);
+  max-width: 800px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.hero-card.profile-card:hover { transform: translateY(-5px); box-shadow: 0 20px 50px var(--shadow); }
+
+.profile-card .profile {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--accent);
+  margin-bottom: 20px;
+}
+
+.profile-card h3 {
+  font-size: 26px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.profile-card p {
+  font-size: 18px;
+  color: #b0bec5;
+  line-height: 1.6;
+}
+
+/* Portfolio Section */
+#portfolio {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+#portfolio h3 {
+  text-align: center;
+  font-size: 30px;
+  color: var(--accent);
+  margin-bottom: 40px;
+  text-shadow: 0 0 10px rgba(0,255,255,0.2);
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.portfolio-item {
+  position: relative;
+  background: var(--card);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px var(--shadow);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.portfolio-item:hover { transform: translateY(-8px); box-shadow: 0 15px 40px var(--shadow); }
+
+.portfolio-item img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+.portfolio-item:hover img { transform: scale(1.05); }
+
+.portfolio-item .overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,255,255,0.15);
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+.portfolio-item:hover .overlay { background: rgba(0,255,255,0.3); }
+
+/* Contact Section */
+.contact-card {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  color: #b0bec5;
+  font-size: 14px;
+}
+footer span { color: var(--accent); font-weight: 600; }
+
+/* ปุ่มล็อกอิน / ออกระบบ */
+#login-btn, #logout-btn {
+  background: var(--accent);
+  color: #0f1724;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 8px rgba(0,255,255,0.4);
+}
+
+#login-btn:hover, #logout-btn:hover {
+  background: #00e5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0,255,255,0.6);
+}
+
+
+
+/* สไตล์สำหรับปุ่มในเมนู */
+li a {
+  display: inline-block;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #2c3e50, #4ca1af);
+  color: #fcefb4;
+  text-decoration: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* เอฟเฟกต์เมื่อวางเมาส์บนปุ่ม */
+li a:hover {
+  background: linear-gradient(135deg, #4ca1af, #2c3e50);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+/* หากต้องการให้ปุ่มอยู่ตรงกลาง */
+li {
+  list-style: none;
+  text-align: center;
+  margin: 10px 0;
+}
+
+
+
+
+
+/* Responsive */
+@media(max-width: 768px){
+  .main-header { padding: 18px 5%; }
+  .main-nav { display: none; position: absolute; top: 60px; left: 0; width: 100%; background: rgba(15,23,36,0.95); }
+  .main-nav.open { display: block; text-align: center; }
+  .main-nav ul { flex-direction: column; gap: 15px; }
+  .menu-icon { display: block; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="main-header">
+  <div class="logo"><a href="#"><i class="fas fa-globe-asia"></i> TenJO</a></div>
+  <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+  <nav class="main-nav" id="navLinks">
+    <ul>
+      <li><a href="tourist.html">ท่องเที่ยว</a></li>
+      <li><a href="studeut.html">นักเรียน</a></li>
+    </ul>
+  </nav>
+  <div id="auth-area"><button id="login-btn" onclick="window.location.href='login.html'">ล็อกอิน</button></div>
+</header>
+
+<main>
+
+<section class="hero-banner">
+  <h1>Welcome to <span>TenJO</span></h1>
+  <p>สำรวจโลกผ่านมุมมองภูมิศาสตร์และเทคโนโลยี</p>
+  <a href="#portfolio" class="btn-primary">ดูผลงาน</a>
+</section>
+
+<section class="hero-card profile-card" data-aos="zoom-in">
+  <img src="img/สุดหล่อno.1.jpg" alt="รูปของฉัน" class="profile">
+  <h3>สวัสดีครับ ผมชื่อจิรเดช</h3>
+  <p>นักศึกษาภูมิศาสตร์ปี 3 ที่ชื่นชอบ GIS, HTML และเทคโนโลยีใหม่ๆ 
+     หากต้องการรู้จักผมสามารถดูผลงานด้านล่างและติดต่อได้ 
+  </p>
+  <li><a href="resume.html">เกี่ยวกับฉัน</a></li>
+</section>
+
+<section id="portfolio" data-aos="fade-up">
+  <h3>ผลงานเด่น</h3>
+  <div class="portfolio-grid">
+    <div class="portfolio-item">
+      <img src="img/งาน1.jpg" alt="แผนที่วิเคราะห์พื้นที่เสี่ยงภัย">
+      <div class="overlay">วิเคราะห์และจัดทำแผนที่</div>
+    </div>
+    <div class="portfolio-item">
+      <img src="img/งาน2.jpg" alt="ระบบติดตามขยะอัจฉริยะ">
+      <div class="overlay">เวิร์คช้อป สัมนา</div>
+    </div>
+    <div class="portfolio-item">
+      <img src="img/งาน3.jpg" alt="เว็บไซต์ท่องเที่ยวเชิงภูมิศาสตร์">
+      <div class="overlay">แนะนแนวสถานศึกษา</div>
+    </div>
+  </div>
+</section>
+ 
+<li><a href="Geo_42/my_first_map.html">ผลงานเว็บไซต์</a></li>
+
+<section class="contact-card" id="contact" data-aos="fade-up">
+  <h3>ติดต่อ</h3>
+  <div class="social-links">
+    <a href="https://www.facebook.com/share/14wvfCW7X1/" target="_blank" title="Facebook"><i class="fab fa-facebook fa-2x" style="color:var(--accent)"></i></a>
+    <a href="https://www.youtube.com/@jjdotcom-4" target="_blank" title="YouTube"><i class="fab fa-youtube fa-2x" style="color:var(--accent)"></i></a>
+    <a href="mailto:jiradetch@email.com" title="Email"><i class="fas fa-envelope fa-2x" style="color:var(--accent)"></i></a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p>© 2025 <span>จิรเดช บุญยืน</span> | พัฒนาโดย TenJO Studio</p>
+</footer>
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+AOS.init({ duration: 800, once: true });
+
+window.onload = function() {
+  const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+  const navLinks = document.getElementById('navLinks');
+  const authArea = document.getElementById('auth-area');
+  if(isLoggedIn){
+    navLinks.style.display='block';
+    authArea.innerHTML='<button onclick="logout()" id="logout-btn">ออกจากระบบ</button>';
+  } else {
+    navLinks.style.display='none';
+    authArea.innerHTML='<button onclick="window.location.href=\'login.html\'" id="login-btn">ล็อกอิน</button>';
+  }
+};
+function logout(){ localStorage.setItem('loggedIn','false'); window.location.reload(); }
+function toggleMenu(){ document.getElementById('navLinks').classList.toggle('open'); }
+</script>
+
+</body>
+</html>
